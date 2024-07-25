@@ -2,6 +2,8 @@
 
 An [Action](https://docs.github.com/en/actions) that checks if files are covered by the [CODEOWNERS](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners) file.
 
+Forked because the upstream repo hasn't been updated in a couple years.
+
 ## Usage
 Create a workflow (eg: `.github/workflows/seat-count.yml`). See [Creating a Workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file).
 
@@ -27,7 +29,7 @@ jobs:
     name: Run Action
     runs-on: ubuntu-latest
     steps:
-      - uses: austenstone/codeowners-coverage@main
+      - uses: sibipro/codeowners-coverage@v1
 ```
 
 #### Example changed files in PR
@@ -46,7 +48,7 @@ jobs:
       - uses: actions/checkout@v3
       - id: changed-files
         uses: tj-actions/changed-files@v29.0.3
-      - uses: austenstone/codeowners-coverage@main
+      - uses: sibipro/codeowners-coverage@v1
         with:
           ignore-default: 'true'
           files: ${{ steps.changed-files.outputs.all_changed_files }}
@@ -58,8 +60,8 @@ Various inputs are defined in [`action.yml`](action.yml):
 | Name | Description | Default |
 | --- | - | - |
 | github&#x2011;token | Token to use to authorize. | ${{&nbsp;github.token&nbsp;}} |
-| include-gitignore | Weither to filter our files in .gitignore | true |
-| ignore-default | Weither to ignore the default rule `*` in CODEOWNERS file | false |
+| include-gitignore | Whether to filter our files in .gitignore | true |
+| ignore-default | Whether to ignore the default rule `*` in CODEOWNERS file | false |
 | files          | Filter check to only specific files | N/A
 <!-- 
 ## ⬅️ Outputs
