@@ -7,6 +7,7 @@ interface Input {
   token: string;
   "include-gitignore": boolean;
   "ignore-default": boolean;
+  "parse-unowned-files": boolean;
   files: string;
 }
 
@@ -15,6 +16,7 @@ export function getInputs(): Input {
   result.token = core.getInput("github-token");
   result["include-gitignore"] = core.getBooleanInput("include-gitignore");
   result["ignore-default"] = core.getBooleanInput("ignore-default");
+  result["parse-unowned-files"] = core.getBooleanInput("parse-unowned-files");
   result.files = core.getInput("files");
   return result;
 }
