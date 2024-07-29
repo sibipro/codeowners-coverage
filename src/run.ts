@@ -5,18 +5,18 @@ import { readFileSync } from "fs";
 
 interface Input {
   token: string;
-  "include-gitignore": boolean;
-  "ignore-default": boolean;
-  "parse-unowned-files": boolean;
+  includeGitignore: boolean;
+  ignoreDefault: boolean;
+  parseUnownedFiles: boolean;
   files: string;
 }
 
 export function getInputs(): Input {
   const result = {} as Input;
   result.token = core.getInput("github-token");
-  result["include-gitignore"] = core.getBooleanInput("include-gitignore");
-  result["ignore-default"] = core.getBooleanInput("ignore-default");
-  result["parse-unowned-files"] = core.getBooleanInput("parse-unowned-files");
+  result.includeGitignore = core.getBooleanInput("include-gitignore");
+  result.ignoreDefault = core.getBooleanInput("ignore-default");
+  result.parseUnownedFiles = core.getBooleanInput("parse-unowned-files");
   result.files = core.getInput("files");
   return result;
 }
@@ -58,7 +58,7 @@ export const runAction = async (
   codeownersBufferFiles = codeownersBufferFiles.map((file) =>
     file.replace(/^\//, "")
   );
-  if (input["ignore-default"] === true) {
+  if (input.ignoreDefault === true) {
     codeownersBufferFiles = codeownersBufferFiles.filter(
       (file) => file !== "*"
     );
@@ -86,7 +86,7 @@ export const runAction = async (
 
   let filesCovered = codeownersFiles;
   let allFilesClean = allFiles;
-  if (input["include-gitignore"] === true) {
+  if (input.includeGitignore === true) {
     allFilesClean = allFiles.filter((file) => !gitIgnoreFiles.includes(file));
     filesCovered = filesCovered.filter(
       (file) => !gitIgnoreFiles.includes(file)
