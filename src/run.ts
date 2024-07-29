@@ -63,6 +63,12 @@ export const runAction = async (
       (file) => file !== "*"
     );
   }
+  const unownedFilesPatterns: string[] = input.parseUnownedFiles
+    ? codeownersBufferFiles
+        .filter((file) => file.startsWith("#?"))
+        .map((file) => file.replace(/^#\?/, ""))
+    : [];
+
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"));
   let codeownersFiles = await codeownersGlob.glob();
   core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
@@ -84,6 +90,12 @@ export const runAction = async (
     core.info("No .gitignore file found");
   }
 
+  const unownedFilesGlob = await glob.create(unownedFilesPatterns.join("\n"));
+  const unownedFiles: string[] = await unownedFilesGlob.glob();
+  if (unownedFiles.length > 0) {
+    core.info(`Unowned Files: ${unownedFiles.length}`);
+  }
+
   let filesCovered = codeownersFiles;
   let allFilesClean = allFiles;
   if (input.includeGitignore === true) {
@@ -91,6 +103,12 @@ export const runAction = async (
     filesCovered = filesCovered.filter(
       (file) => !gitIgnoreFiles.includes(file)
     );
+  }
+  if (unownedFiles.length) {
+    allFilesClean = allFilesClean.filter(
+      (file) => !unownedFiles.includes(file)
+    );
+    filesCovered = filesCovered.filter((file) => !unownedFiles.includes(file));
   }
   if (input.files) {
     filesCovered = filesCovered.filter((file) => allFilesClean.includes(file));
