@@ -30,7 +30,7 @@ export const runAction = async (
   const addIgnoresToPatterns = (patterns: string) => {
     let result = patterns;
     if (!input.includeGit) {
-      result += "\n.git";
+      result += "\n!.git";
     }
     return result;
   };

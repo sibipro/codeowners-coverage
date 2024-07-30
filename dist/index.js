@@ -12020,7 +12020,7 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     const addIgnoresToPatterns = (patterns) => {
         let result = patterns;
         if (!input.includeGit) {
-            result += "\n.git";
+            result += "\n!.git";
         }
         return result;
     };
