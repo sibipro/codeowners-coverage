@@ -67,13 +67,6 @@ export const runAction = async (
   codeownersBufferFiles = codeownersBufferFiles.map((file) =>
     file.replace(/^\//, "")
   );
-  const unownedFilesPatterns: string[] = input.parseUnownedFiles
-    ? codeownersBufferFiles
-        .filter((file) => file.startsWith("#?"))
-        .map((file) => file.replace(/^#\?/, ""))
-    : [];
-  console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
-
   codeownersBufferFiles = codeownersBufferFiles.filter(
     (file) => !file.startsWith("#")
   );
@@ -82,6 +75,14 @@ export const runAction = async (
       (file) => file !== "*"
     );
   }
+
+  const unownedFilesPatterns: string[] = input.parseUnownedFiles
+    ? codeownersBuffer
+        .split("\n")
+        .filter((file) => file.startsWith("#?"))
+        .map((file) => file.replace(/^#\?/, ""))
+    : [];
+  console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"));
   let codeownersFiles = await codeownersGlob.glob();

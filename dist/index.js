@@ -12054,16 +12054,17 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
         .split("\n")
         .map((line) => line.split(" ")[0]);
     codeownersBufferFiles = codeownersBufferFiles.map((file) => file.replace(/^\//, ""));
-    const unownedFilesPatterns = input.parseUnownedFiles
-        ? codeownersBufferFiles
-            .filter((file) => file.startsWith("#?"))
-            .map((file) => file.replace(/^#\?/, ""))
-        : [];
-    console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
     codeownersBufferFiles = codeownersBufferFiles.filter((file) => !file.startsWith("#"));
     if (input.ignoreDefault === true) {
         codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "*");
     }
+    const unownedFilesPatterns = input.parseUnownedFiles
+        ? codeownersBuffer
+            .split("\n")
+            .filter((file) => file.startsWith("#?"))
+            .map((file) => file.replace(/^#\?/, ""))
+        : [];
+    console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
     const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"));
     let codeownersFiles = yield codeownersGlob.glob();
     core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
