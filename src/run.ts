@@ -134,9 +134,7 @@ export const runAction = async (
   }
 
   if (filesNotCovered.length > 0) {
-    core.setFailed(
-      "Files not covered by CODEOWNERS: \n" + filesNotCovered.join("\n")
-    );
+    core.setFailed(`${filesNotCovered.length} files not covered by CODEOWNERS`);
   }
 };
 
