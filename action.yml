@@ -18,6 +18,10 @@ inputs:
     description: Whether to ignore the default `*` files
     default: "false"
     required: false
+  ignore-git:
+    description: Whether to ignore the .git directory
+    default: "true"
+    required: false
   files:
     description: The files to check
     required: false

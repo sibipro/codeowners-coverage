@@ -8,6 +8,7 @@ interface Input {
   includeGitignore: boolean;
   ignoreDefault: boolean;
   parseUnownedFiles: boolean;
+  ignoreGit: boolean;
   files: string;
 }
 
@@ -17,6 +18,7 @@ export function getInputs(): Input {
   result.includeGitignore = core.getBooleanInput("include-gitignore");
   result.ignoreDefault = core.getBooleanInput("ignore-default");
   result.parseUnownedFiles = core.getBooleanInput("parse-unowned-files");
+  result.ignoreGit = core.getBooleanInput("ignore-git");
   result.files = core.getInput("files");
   return result;
 }
@@ -92,7 +94,7 @@ export const runAction = async (
 
   const unownedFilesGlob = await glob.create(unownedFilesPatterns.join("\n"));
   const unownedFiles: string[] = await unownedFilesGlob.glob();
-  if (unownedFiles.length > 0) {
+  if (input.parseUnownedFiles) {
     core.info(`Unowned Files: ${unownedFiles.length}`);
   }
 
