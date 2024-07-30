@@ -72,6 +72,8 @@ export const runAction = async (
         .filter((file) => file.startsWith("#?"))
         .map((file) => file.replace(/^#\?/, ""))
     : [];
+  console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
+
   codeownersBufferFiles = codeownersBufferFiles.filter(
     (file) => !file.startsWith("#")
   );

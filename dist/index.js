@@ -12059,6 +12059,7 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
             .filter((file) => file.startsWith("#?"))
             .map((file) => file.replace(/^#\?/, ""))
         : [];
+    console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
     codeownersBufferFiles = codeownersBufferFiles.filter((file) => !file.startsWith("#"));
     if (input.ignoreDefault === true) {
         codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "*");
