@@ -14,14 +14,15 @@ inputs:
     description: Whether to include files in .gitignore
     default: "true"
     required: false
+  include-git:
+    description: Whether to include files in the .git directory
+    default: "false"
+    required: false
   ignore-default:
     description: Whether to ignore the default `*` files
     default: "false"
     required: false
-  ignore-git:
-    description: Whether to ignore the .git directory
-    default: "true"
-    required: false
+  
   files:
     description: The files to check
     required: false

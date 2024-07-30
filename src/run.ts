@@ -6,9 +6,9 @@ import { readFileSync } from "fs";
 interface Input {
   token: string;
   includeGitignore: boolean;
+  includeGit: boolean;
   ignoreDefault: boolean;
   parseUnownedFiles: boolean;
-  ignoreGit: boolean;
   files: string;
 }
 
@@ -16,9 +16,9 @@ export function getInputs(): Input {
   const result = {} as Input;
   result.token = core.getInput("github-token");
   result.includeGitignore = core.getBooleanInput("include-gitignore");
+  result.includeGit = core.getBooleanInput("include-git");
   result.ignoreDefault = core.getBooleanInput("ignore-default");
   result.parseUnownedFiles = core.getBooleanInput("parse-unowned-files");
-  result.ignoreGit = core.getBooleanInput("ignore-git");
   result.files = core.getInput("files");
   return result;
 }
@@ -27,12 +27,22 @@ export const runAction = async (
   _octokit: ReturnType<typeof github.getOctokit>,
   input: Input
 ): Promise<void> => {
+  const addIgnoresToPatterns = (patterns: string) => {
+    let result = patterns;
+    if (!input.includeGit) {
+      result += "\n.git";
+    }
+    return result;
+  };
+
   let allFiles: string[] = [];
   if (input.files) {
     allFiles = input.files.split(" ");
-    allFiles = await (await glob.create(allFiles.join("\n"))).glob();
+    allFiles = await (
+      await glob.create(addIgnoresToPatterns(allFiles.join("\n")))
+    ).glob();
   } else {
-    allFiles = await (await glob.create("*")).glob();
+    allFiles = await (await glob.create(addIgnoresToPatterns("*"))).glob();
   }
   core.startGroup(`All Files: ${allFiles.length}`);
   core.info(JSON.stringify(allFiles));
