@@ -80,9 +80,8 @@ export const runAction = async (
     ? codeownersBuffer
         .split("\n")
         .filter((file) => file.startsWith("#?"))
-        .map((file) => file.replace(/^#\?/, ""))
+        .map((file) => file.replace(/^#\?\s*/, ""))
     : [];
-  console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"));
   let codeownersFiles = await codeownersGlob.glob();

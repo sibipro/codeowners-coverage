@@ -12062,9 +12062,8 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
         ? codeownersBuffer
             .split("\n")
             .filter((file) => file.startsWith("#?"))
-            .map((file) => file.replace(/^#\?/, ""))
+            .map((file) => file.replace(/^#\?\s*/, ""))
         : [];
-    console.log("(tmp) Unowned files patterns: ", unownedFilesPatterns);
     const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"));
     let codeownersFiles = yield codeownersGlob.glob();
     core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
