@@ -22,7 +22,6 @@ inputs:
     description: Whether to ignore the default `*` files
     default: "false"
     required: false
-  
   files:
     description: The files to check
     required: false
