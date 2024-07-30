@@ -12027,10 +12027,14 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     let allFiles = [];
     if (input.files) {
         allFiles = input.files.split(" ");
-        allFiles = yield (yield glob.create(addIgnoresToPatterns(allFiles.join("\n")))).glob();
+        allFiles = yield (yield glob.create(addIgnoresToPatterns(allFiles.join("\n")), {
+            matchDirectories: false,
+        })).glob();
     }
     else {
-        allFiles = yield (yield glob.create(addIgnoresToPatterns("*"))).glob();
+        allFiles = yield (yield glob.create(addIgnoresToPatterns("*"), {
+            matchDirectories: false,
+        })).glob();
     }
     core.startGroup(`All Files: ${allFiles.length}`);
     core.info(JSON.stringify(allFiles));
@@ -12064,7 +12068,9 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
             .filter((file) => file.startsWith("#?"))
             .map((file) => file.replace(/^#\?\s*/, ""))
         : [];
-    const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"));
+    const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"), {
+        matchDirectories: false,
+    });
     let codeownersFiles = yield codeownersGlob.glob();
     core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
     core.info(JSON.stringify(codeownersFiles));
@@ -12077,14 +12083,18 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     let gitIgnoreFiles = [];
     try {
         const gitIgnoreBuffer = (0, fs_1.readFileSync)(".gitignore", "utf8");
-        const gitIgnoreGlob = yield glob.create(gitIgnoreBuffer);
+        const gitIgnoreGlob = yield glob.create(gitIgnoreBuffer, {
+            matchDirectories: false,
+        });
         gitIgnoreFiles = yield gitIgnoreGlob.glob();
         core.info(`.gitignore Files: ${gitIgnoreFiles.length}`);
     }
     catch (error) {
         core.info("No .gitignore file found");
     }
-    const unownedFilesGlob = yield glob.create(unownedFilesPatterns.join("\n"));
+    const unownedFilesGlob = yield glob.create(unownedFilesPatterns.join("\n"), {
+        matchDirectories: false,
+    });
     const unownedFiles = yield unownedFilesGlob.glob();
     if (input.parseUnownedFiles) {
         core.info(`Unowned Files: ${unownedFiles.length}`);

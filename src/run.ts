@@ -39,10 +39,16 @@ export const runAction = async (
   if (input.files) {
     allFiles = input.files.split(" ");
     allFiles = await (
-      await glob.create(addIgnoresToPatterns(allFiles.join("\n")))
+      await glob.create(addIgnoresToPatterns(allFiles.join("\n")), {
+        matchDirectories: false,
+      })
     ).glob();
   } else {
-    allFiles = await (await glob.create(addIgnoresToPatterns("*"))).glob();
+    allFiles = await (
+      await glob.create(addIgnoresToPatterns("*"), {
+        matchDirectories: false,
+      })
+    ).glob();
   }
   core.startGroup(`All Files: ${allFiles.length}`);
   core.info(JSON.stringify(allFiles));
@@ -83,7 +89,9 @@ export const runAction = async (
         .map((file) => file.replace(/^#\?\s*/, ""))
     : [];
 
-  const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"));
+  const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"), {
+    matchDirectories: false,
+  });
   let codeownersFiles = await codeownersGlob.glob();
   core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
   core.info(JSON.stringify(codeownersFiles));
@@ -97,14 +105,18 @@ export const runAction = async (
   let gitIgnoreFiles: string[] = [];
   try {
     const gitIgnoreBuffer = readFileSync(".gitignore", "utf8");
-    const gitIgnoreGlob = await glob.create(gitIgnoreBuffer);
+    const gitIgnoreGlob = await glob.create(gitIgnoreBuffer, {
+      matchDirectories: false,
+    });
     gitIgnoreFiles = await gitIgnoreGlob.glob();
     core.info(`.gitignore Files: ${gitIgnoreFiles.length}`);
   } catch (error) {
     core.info("No .gitignore file found");
   }
 
-  const unownedFilesGlob = await glob.create(unownedFilesPatterns.join("\n"));
+  const unownedFilesGlob = await glob.create(unownedFilesPatterns.join("\n"), {
+    matchDirectories: false,
+  });
   const unownedFiles: string[] = await unownedFilesGlob.glob();
   if (input.parseUnownedFiles) {
     core.info(`Unowned Files: ${unownedFiles.length}`);
