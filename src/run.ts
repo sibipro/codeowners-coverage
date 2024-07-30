@@ -64,22 +64,22 @@ export const runAction = async (
   let codeownersBufferFiles = codeownersBuffer
     .split("\n")
     .map((line) => line.split(" ")[0]);
-  codeownersBufferFiles = codeownersBufferFiles.filter(
-    (file) => !file.startsWith("#")
-  );
   codeownersBufferFiles = codeownersBufferFiles.map((file) =>
     file.replace(/^\//, "")
+  );
+  const unownedFilesPatterns: string[] = input.parseUnownedFiles
+    ? codeownersBufferFiles
+        .filter((file) => file.startsWith("#?"))
+        .map((file) => file.replace(/^#\?/, ""))
+    : [];
+  codeownersBufferFiles = codeownersBufferFiles.filter(
+    (file) => !file.startsWith("#")
   );
   if (input.ignoreDefault === true) {
     codeownersBufferFiles = codeownersBufferFiles.filter(
       (file) => file !== "*"
     );
   }
-  const unownedFilesPatterns: string[] = input.parseUnownedFiles
-    ? codeownersBufferFiles
-        .filter((file) => file.startsWith("#?"))
-        .map((file) => file.replace(/^#\?/, ""))
-    : [];
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"));
   let codeownersFiles = await codeownersGlob.glob();
