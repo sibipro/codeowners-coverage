@@ -12008,20 +12008,33 @@ const fs_1 = __nccwpck_require__(7147);
 function getInputs() {
     const result = {};
     result.token = core.getInput("github-token");
-    result["include-gitignore"] = core.getBooleanInput("include-gitignore");
-    result["ignore-default"] = core.getBooleanInput("ignore-default");
+    result.includeGitignore = core.getBooleanInput("include-gitignore");
+    result.includeGit = core.getBooleanInput("include-git");
+    result.ignoreDefault = core.getBooleanInput("ignore-default");
+    result.parseUnownedFiles = core.getBooleanInput("parse-unowned-files");
     result.files = core.getInput("files");
     return result;
 }
 exports.getInputs = getInputs;
 const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, function* () {
+    const addIgnoresToPatterns = (patterns) => {
+        let result = patterns;
+        if (!input.includeGit) {
+            result += "\n!.git";
+        }
+        return result;
+    };
     let allFiles = [];
     if (input.files) {
         allFiles = input.files.split(" ");
-        allFiles = yield (yield glob.create(allFiles.join("\n"))).glob();
+        allFiles = yield (yield glob.create(addIgnoresToPatterns(allFiles.join("\n")), {
+            matchDirectories: false,
+        })).glob();
     }
     else {
-        allFiles = yield (yield glob.create("*")).glob();
+        allFiles = yield (yield glob.create(addIgnoresToPatterns("*"), {
+            matchDirectories: false,
+        })).glob();
     }
     core.startGroup(`All Files: ${allFiles.length}`);
     core.info(JSON.stringify(allFiles));
@@ -12044,12 +12057,20 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     let codeownersBufferFiles = codeownersBuffer
         .split("\n")
         .map((line) => line.split(" ")[0]);
-    codeownersBufferFiles = codeownersBufferFiles.filter((file) => !file.startsWith("#"));
     codeownersBufferFiles = codeownersBufferFiles.map((file) => file.replace(/^\//, ""));
-    if (input["ignore-default"] === true) {
+    codeownersBufferFiles = codeownersBufferFiles.filter((file) => !file.startsWith("#"));
+    if (input.ignoreDefault === true) {
         codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "*");
     }
-    const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"));
+    const unownedFilesPatterns = input.parseUnownedFiles
+        ? codeownersBuffer
+            .split("\n")
+            .filter((file) => file.startsWith("#?"))
+            .map((file) => file.replace(/^#\?\s*/, ""))
+        : [];
+    const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"), {
+        matchDirectories: false,
+    });
     let codeownersFiles = yield codeownersGlob.glob();
     core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
     core.info(JSON.stringify(codeownersFiles));
@@ -12062,18 +12083,31 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     let gitIgnoreFiles = [];
     try {
         const gitIgnoreBuffer = (0, fs_1.readFileSync)(".gitignore", "utf8");
-        const gitIgnoreGlob = yield glob.create(gitIgnoreBuffer);
+        const gitIgnoreGlob = yield glob.create(gitIgnoreBuffer, {
+            matchDirectories: false,
+        });
         gitIgnoreFiles = yield gitIgnoreGlob.glob();
         core.info(`.gitignore Files: ${gitIgnoreFiles.length}`);
     }
     catch (error) {
         core.info("No .gitignore file found");
     }
+    const unownedFilesGlob = yield glob.create(unownedFilesPatterns.join("\n"), {
+        matchDirectories: false,
+    });
+    const unownedFiles = yield unownedFilesGlob.glob();
+    if (input.parseUnownedFiles) {
+        core.info(`Unowned Files: ${unownedFiles.length}`);
+    }
     let filesCovered = codeownersFiles;
     let allFilesClean = allFiles;
-    if (input["include-gitignore"] === true) {
+    if (input.includeGitignore === true) {
         allFilesClean = allFiles.filter((file) => !gitIgnoreFiles.includes(file));
         filesCovered = filesCovered.filter((file) => !gitIgnoreFiles.includes(file));
+    }
+    if (unownedFiles.length) {
+        allFilesClean = allFilesClean.filter((file) => !unownedFiles.includes(file));
+        filesCovered = filesCovered.filter((file) => !unownedFiles.includes(file));
     }
     if (input.files) {
         filesCovered = filesCovered.filter((file) => allFilesClean.includes(file));
@@ -12092,7 +12126,7 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
         });
     }
     if (filesNotCovered.length > 0) {
-        core.setFailed("Files not covered by CODEOWNERS: \n" + filesNotCovered.join("\n"));
+        core.setFailed(`${filesNotCovered.length} files not covered by CODEOWNERS`);
     }
 });
 exports.runAction = runAction;

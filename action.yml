@@ -12,16 +12,24 @@ inputs:
     required: false
   include-gitignore:
     description: Whether to include files in .gitignore
-    default: 'true'
+    default: "true"
+    required: false
+  include-git:
+    description: Whether to include files in the .git directory
+    default: "false"
     required: false
   ignore-default:
     description: Whether to ignore the default `*` files
-    default: 'false'
+    default: "false"
     required: false
   files:
     description: The files to check
     required: false
+  parse-unowned-files:
+    description: Interpret lines starting with '#?' as unowned files that do not need to be covered
+    default: "true"
+    required: false
 
 runs:
-  using: "node16"
+  using: "node20"
   main: "dist/index.js"
