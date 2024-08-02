@@ -145,7 +145,6 @@ export const runAction = async (
   }(${coveragePercent.toFixed(2)}%) files covered by CODEOWNERS`;
   core.notice(coverageMessage, {
     title: "Coverage",
-    file: "CODEOWNERS",
   });
 
   const filesNotCovered = allFilesClean.filter(

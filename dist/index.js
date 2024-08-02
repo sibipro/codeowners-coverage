@@ -12116,7 +12116,6 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     const coverageMessage = `${filesCovered.length}/${allFilesClean.length}(${coveragePercent.toFixed(2)}%) files covered by CODEOWNERS`;
     core.notice(coverageMessage, {
         title: "Coverage",
-        file: "CODEOWNERS",
     });
     const filesNotCovered = allFilesClean.filter((f) => !filesCovered.includes(f));
     for (const file of filesNotCovered) {
