@@ -12057,7 +12057,7 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     let codeownersBufferFiles = codeownersBuffer
         .split("\n")
         .map((line) => line.split(" ")[0]);
-    codeownersBufferFiles = codeownersBufferFiles.map((file) => file.replace(/^\//, ""));
+    codeownersBufferFiles = codeownersBufferFiles.map((file) => codeownerPatternToGlob(file));
     codeownersBufferFiles = codeownersBufferFiles.filter((file) => !file.startsWith("#"));
     if (input.ignoreDefault === true) {
         codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "*");
@@ -12067,6 +12067,7 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
             .split("\n")
             .filter((file) => file.startsWith("#?"))
             .map((file) => file.replace(/^#\?\s*/, ""))
+            .map((file) => codeownerPatternToGlob(file))
         : [];
     const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"), {
         matchDirectories: false,
@@ -12129,6 +12130,14 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.runAction = runAction;
+function codeownerPatternToGlob(pattern) {
+    if (pattern.startsWith("/")) {
+        return pattern.replace(/^\//, "");
+    }
+    else {
+        return "**/" + pattern;
+    }
+}
 const run = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const input = getInputs();

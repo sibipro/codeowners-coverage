@@ -71,7 +71,7 @@ export const runAction = async (
     .split("\n")
     .map((line) => line.split(" ")[0]);
   codeownersBufferFiles = codeownersBufferFiles.map((file) =>
-    file.replace(/^\//, "")
+    codeownerPatternToGlob(file)
   );
   codeownersBufferFiles = codeownersBufferFiles.filter(
     (file) => !file.startsWith("#")
@@ -87,6 +87,7 @@ export const runAction = async (
         .split("\n")
         .filter((file) => file.startsWith("#?"))
         .map((file) => file.replace(/^#\?\s*/, ""))
+        .map((file) => codeownerPatternToGlob(file))
     : [];
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"), {
@@ -162,6 +163,14 @@ export const runAction = async (
     core.setFailed(`${filesNotCovered.length} files not covered by CODEOWNERS`);
   }
 };
+
+function codeownerPatternToGlob(pattern: string): string {
+  if (pattern.startsWith("/")) {
+    return pattern.replace(/^\//, "");
+  } else {
+    return "**/" + pattern;
+  }
+}
 
 const run = async (): Promise<void> => {
   try {
