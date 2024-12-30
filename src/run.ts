@@ -177,6 +177,16 @@ export const runAction = async (
 };
 
 function codeownerPatternToGlob(pattern: string): string {
+  // CODEOWNERS patterns are kind of like gitignore. By default
+  // they match in any directory, unless they start with `/`, in
+  // which case they start from the workspace root.
+  // Ex. `index.js` would match any `index.js` file anywhere in the project,
+  // but `/package.json` would specifically match the root `package.json` file
+  // and not any others.
+
+  // Glob patterns are relative to the workspace root by default,
+  // but a prefix of `**/` creates behavior similar to no prefix in CODEOWNERS.
+
   // TODO: document the differences between syntaxes
   if (pattern.startsWith("/")) {
     return pattern.replace(/^\//, "");
