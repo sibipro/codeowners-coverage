@@ -70,17 +70,22 @@ export const runAction = async (
   let codeownersBufferFiles = codeownersBuffer
     .split("\n")
     .map((line) => line.split(" ")[0]);
-  codeownersBufferFiles = codeownersBufferFiles.map((file) =>
-    codeownerPatternToGlob(file)
-  );
   codeownersBufferFiles = codeownersBufferFiles.filter(
     (file) => !file.startsWith("#")
   );
+  codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "");
   if (input.ignoreDefault === true) {
     codeownersBufferFiles = codeownersBufferFiles.filter(
       (file) => file !== "*"
     );
   }
+  codeownersBufferFiles = codeownersBufferFiles.map((file) =>
+    codeownerPatternToGlob(file)
+  );
+
+  core.startGroup("CODEOWNERS Glob Patterns");
+  core.info(JSON.stringify(codeownersBufferFiles));
+  core.endGroup();
 
   const unownedFilesPatterns: string[] = input.parseUnownedFiles
     ? codeownersBuffer
@@ -89,6 +94,11 @@ export const runAction = async (
         .map((file) => file.replace(/^#\?\s*/, ""))
         .map((file) => codeownerPatternToGlob(file))
     : [];
+  core.startGroup(
+    `Unowned Files Glob Patterns: ${unownedFilesPatterns.length}`
+  );
+  core.info(JSON.stringify(unownedFilesPatterns));
+  core.endGroup();
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"), {
     matchDirectories: false,
@@ -120,7 +130,9 @@ export const runAction = async (
   });
   const unownedFiles: string[] = await unownedFilesGlob.glob();
   if (input.parseUnownedFiles) {
-    core.info(`Unowned Files: ${unownedFiles.length}`);
+    core.startGroup("`Unowned Files: ${unownedFiles.length}`");
+    core.info(JSON.stringify(unownedFiles));
+    core.endGroup();
   }
 
   let filesCovered = codeownersFiles;
@@ -165,6 +177,7 @@ export const runAction = async (
 };
 
 function codeownerPatternToGlob(pattern: string): string {
+  // TODO: document the differences between syntaxes
   if (pattern.startsWith("/")) {
     return pattern.replace(/^\//, "");
   } else {

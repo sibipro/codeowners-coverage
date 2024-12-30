@@ -12057,11 +12057,15 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     let codeownersBufferFiles = codeownersBuffer
         .split("\n")
         .map((line) => line.split(" ")[0]);
-    codeownersBufferFiles = codeownersBufferFiles.map((file) => codeownerPatternToGlob(file));
     codeownersBufferFiles = codeownersBufferFiles.filter((file) => !file.startsWith("#"));
+    codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "");
     if (input.ignoreDefault === true) {
         codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "*");
     }
+    codeownersBufferFiles = codeownersBufferFiles.map((file) => codeownerPatternToGlob(file));
+    core.startGroup("CODEOWNERS Glob Patterns");
+    core.info(JSON.stringify(codeownersBufferFiles));
+    core.endGroup();
     const unownedFilesPatterns = input.parseUnownedFiles
         ? codeownersBuffer
             .split("\n")
@@ -12069,6 +12073,9 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
             .map((file) => file.replace(/^#\?\s*/, ""))
             .map((file) => codeownerPatternToGlob(file))
         : [];
+    core.startGroup(`Unowned Files Glob Patterns: ${unownedFilesPatterns.length}`);
+    core.info(JSON.stringify(unownedFilesPatterns));
+    core.endGroup();
     const codeownersGlob = yield glob.create(codeownersBufferFiles.join("\n"), {
         matchDirectories: false,
     });
@@ -12098,7 +12105,9 @@ const runAction = (_octokit, input) => __awaiter(void 0, void 0, void 0, functio
     });
     const unownedFiles = yield unownedFilesGlob.glob();
     if (input.parseUnownedFiles) {
-        core.info(`Unowned Files: ${unownedFiles.length}`);
+        core.startGroup("`Unowned Files: ${unownedFiles.length}`");
+        core.info(JSON.stringify(unownedFiles));
+        core.endGroup();
     }
     let filesCovered = codeownersFiles;
     let allFilesClean = allFiles;
