@@ -70,24 +70,35 @@ export const runAction = async (
   let codeownersBufferFiles = codeownersBuffer
     .split("\n")
     .map((line) => line.split(" ")[0]);
-  codeownersBufferFiles = codeownersBufferFiles.map((file) =>
-    file.replace(/^\//, "")
-  );
   codeownersBufferFiles = codeownersBufferFiles.filter(
     (file) => !file.startsWith("#")
   );
+  codeownersBufferFiles = codeownersBufferFiles.filter((file) => file !== "");
   if (input.ignoreDefault === true) {
     codeownersBufferFiles = codeownersBufferFiles.filter(
       (file) => file !== "*"
     );
   }
+  codeownersBufferFiles = codeownersBufferFiles.map((file) =>
+    codeownerPatternToGlob(file)
+  );
+
+  core.startGroup("CODEOWNERS Glob Patterns");
+  core.info(JSON.stringify(codeownersBufferFiles));
+  core.endGroup();
 
   const unownedFilesPatterns: string[] = input.parseUnownedFiles
     ? codeownersBuffer
         .split("\n")
         .filter((file) => file.startsWith("#?"))
         .map((file) => file.replace(/^#\?\s*/, ""))
+        .map((file) => codeownerPatternToGlob(file))
     : [];
+  core.startGroup(
+    `Unowned Files Glob Patterns: ${unownedFilesPatterns.length}`
+  );
+  core.info(JSON.stringify(unownedFilesPatterns));
+  core.endGroup();
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"), {
     matchDirectories: false,
@@ -119,7 +130,9 @@ export const runAction = async (
   });
   const unownedFiles: string[] = await unownedFilesGlob.glob();
   if (input.parseUnownedFiles) {
-    core.info(`Unowned Files: ${unownedFiles.length}`);
+    core.startGroup("`Unowned Files: ${unownedFiles.length}`");
+    core.info(JSON.stringify(unownedFiles));
+    core.endGroup();
   }
 
   let filesCovered = codeownersFiles;
@@ -162,6 +175,25 @@ export const runAction = async (
     core.setFailed(`${filesNotCovered.length} files not covered by CODEOWNERS`);
   }
 };
+
+function codeownerPatternToGlob(pattern: string): string {
+  // CODEOWNERS patterns are kind of like gitignore. By default
+  // they match in any directory, unless they start with `/`, in
+  // which case they start from the workspace root.
+  // Ex. `index.js` would match any `index.js` file anywhere in the project,
+  // but `/package.json` would specifically match the root `package.json` file
+  // and not any others.
+
+  // Glob patterns are relative to the workspace root by default,
+  // but a prefix of `**/` creates behavior similar to no prefix in CODEOWNERS.
+
+  // TODO: document the differences between syntaxes
+  if (pattern.startsWith("/")) {
+    return pattern.replace(/^\//, "");
+  } else {
+    return "**/" + pattern;
+  }
+}
 
 const run = async (): Promise<void> => {
   try {
