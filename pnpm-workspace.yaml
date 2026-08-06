@@ -1,4 +1,7 @@
 minimumReleaseAge: 20160
+minimumReleaseAgeExclude:
+  - 'brace-expansion@1.1.18'
+  - 'undici@6.28.0'
 overrides:
   undici@<6.28.0: 6.28.0
   js-yaml@<3.15.0: 3.15.0
