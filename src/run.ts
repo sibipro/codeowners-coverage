@@ -50,9 +50,12 @@ export const runAction = async (
       })
     ).glob();
   }
-  core.startGroup(`All Files: ${allFiles.length}`);
-  core.info(JSON.stringify(allFiles));
-  core.endGroup();
+
+  if (core.isDebug()) {
+    core.startGroup(`All Files: ${allFiles.length}`);
+    core.debug(JSON.stringify(allFiles));
+    core.endGroup();
+  }
 
   let codeownersBuffer: string;
   try {
@@ -64,9 +67,13 @@ export const runAction = async (
       throw new Error("No CODEOWNERS file found");
     }
   }
-  core.startGroup("CODEOWNERS File");
-  core.info(codeownersBuffer);
-  core.endGroup();
+
+  if (core.isDebug()) {
+    core.startGroup("CODEOWNERS File");
+    core.debug(codeownersBuffer);
+    core.endGroup();
+  }
+
   let codeownersBufferFiles = codeownersBuffer
     .split("\n")
     .map((line) => line.split(" ")[0]);
@@ -83,9 +90,11 @@ export const runAction = async (
     codeownerPatternToGlob(file)
   );
 
-  core.startGroup("CODEOWNERS Glob Patterns");
-  core.info(JSON.stringify(codeownersBufferFiles));
-  core.endGroup();
+  if (core.isDebug()) {
+    core.startGroup("CODEOWNERS Glob Patterns");
+    core.debug(JSON.stringify(codeownersBufferFiles));
+    core.endGroup();
+  }
 
   const unownedFilesPatterns: string[] = input.parseUnownedFiles
     ? codeownersBuffer
@@ -94,24 +103,34 @@ export const runAction = async (
         .map((file) => file.replace(/^#\?\s*/, ""))
         .map((file) => codeownerPatternToGlob(file))
     : [];
-  core.startGroup(
-    `Unowned Files Glob Patterns: ${unownedFilesPatterns.length}`
-  );
-  core.info(JSON.stringify(unownedFilesPatterns));
-  core.endGroup();
+
+  if (core.isDebug()) {
+    core.startGroup(
+      `Unowned Files Glob Patterns: ${unownedFilesPatterns.length}`
+    );
+    core.debug(JSON.stringify(unownedFilesPatterns));
+    core.endGroup();
+  }
 
   const codeownersGlob = await glob.create(codeownersBufferFiles.join("\n"), {
     matchDirectories: false,
   });
   let codeownersFiles = await codeownersGlob.glob();
-  core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
-  core.info(JSON.stringify(codeownersFiles));
-  core.endGroup();
+
+  if (core.isDebug()) {
+    core.startGroup(`CODEOWNERS Files: ${codeownersFiles.length}`);
+    core.debug(JSON.stringify(codeownersFiles));
+    core.endGroup();
+  }
+
   codeownersFiles = codeownersFiles.filter((file) => allFiles.includes(file));
-  core.info(`CODEOWNER Files in All Files: ${codeownersFiles.length}`);
-  core.startGroup("CODEOWNERS");
-  core.info(JSON.stringify(codeownersFiles));
-  core.endGroup();
+
+  if (core.isDebug()) {
+    core.debug(`CODEOWNER Files in All Files: ${codeownersFiles.length}`);
+    core.startGroup("CODEOWNERS");
+    core.debug(JSON.stringify(codeownersFiles));
+    core.endGroup();
+  }
 
   let gitIgnoreFiles: string[] = [];
   try {
@@ -120,9 +139,9 @@ export const runAction = async (
       matchDirectories: false,
     });
     gitIgnoreFiles = await gitIgnoreGlob.glob();
-    core.info(`.gitignore Files: ${gitIgnoreFiles.length}`);
+    core.debug(`.gitignore Files: ${gitIgnoreFiles.length}`);
   } catch (error) {
-    core.info("No .gitignore file found");
+    core.debug("No .gitignore file found");
   }
 
   const unownedFilesGlob = await glob.create(unownedFilesPatterns.join("\n"), {
