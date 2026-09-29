@@ -6,7 +6,7 @@ settings:
 
 overrides:
   js-yaml@<3.15.2: 3.15.2
-  undici@<6.28.0: 6.28.0
+  undici@<6.28.1: 6.28.1
   brace-expansion@<1.1.18: 1.1.18
   browserslist@<4.28.7: 4.28.8
 
@@ -1695,8 +1695,8 @@ packages:
   undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  undici@6.28.0:
-    resolution: {integrity: sha512-LIY910g9TI13YS95lrMFrs8Rm/u/irgHeTWoKCoteeJ04CUJ92eEfj0rVn+7VKMPBpUPiUoBKfhNyLI23EE/KA==}
+  undici@6.28.1:
+    resolution: {integrity: sha512-zWpdTVD54H48CIybL0rWQ3ukpb9d23wM7eH5RtfdmeP70cWHNjtfo7P4vZX+5CoDcO53J4Pu5uXp7lNfjc6DRA==}
     engines: {node: '>=18.17'}
 
   universal-user-agent@6.0.1:
@@ -1790,7 +1790,7 @@ snapshots:
       '@octokit/plugin-rest-endpoint-methods': 10.4.1(@octokit/core@5.2.2)
       '@octokit/request': 8.4.1
       '@octokit/request-error': 5.1.1
-      undici: 6.28.0
+      undici: 6.28.1
 
   '@actions/glob@0.3.0':
     dependencies:
@@ -1800,7 +1800,7 @@ snapshots:
   '@actions/http-client@2.2.3':
     dependencies:
       tunnel: 0.0.6
-      undici: 6.28.0
+      undici: 6.28.1
 
   '@actions/io@1.1.3': {}
 
@@ -3732,7 +3732,7 @@ snapshots:
 
   undici-types@5.26.5: {}
 
-  undici@6.28.0: {}
+  undici@6.28.1: {}
 
   universal-user-agent@6.0.1: {}
 
